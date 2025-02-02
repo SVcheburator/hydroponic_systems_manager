@@ -29,3 +29,8 @@ class MeasurementSerializer(serializers.ModelSerializer):
         if not (0 <= value <= 100):
             raise serializers.ValidationError("Temperature must be realistic (0-100°C)")
         return value
+    
+    def validate_tds(self, value):
+        if not (800 <= value <= 1500):
+            raise serializers.ValidationError("TDS must be between 800 and 1500 ppm")
+        return value
