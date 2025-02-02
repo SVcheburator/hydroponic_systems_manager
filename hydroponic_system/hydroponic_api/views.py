@@ -17,7 +17,11 @@ class MeasurementViewSet(viewsets.ModelViewSet):
     serializer_class = MeasurementSerializer
 
     def get_queryset(self):
-        return Measurement.objects.filter(system__owner=self.request.user)
+        queryset = Measurement.objects.filter(system__owner=self.request.user)
+        system_id = self.request.query_params.get("system")
+        if system_id:
+            queryset = queryset.filter(system_id=system_id)
+        return queryset
 
     def perform_create(self, serializer):
         system = serializer.validated_data['system']

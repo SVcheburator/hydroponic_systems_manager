@@ -1,12 +1,6 @@
 from rest_framework import serializers
+from django.urls import reverse
 from .models import HydroponicSystem, Measurement
-
-
-class HydroponicSystemSerializer(serializers.HyperlinkedModelSerializer):
-    class Meta:
-        model = HydroponicSystem
-        fields = ["id", "url", "name", "description", "created_at"]
-        read_only_fields = ["id", "created_at"]
 
 
 class MeasurementSerializer(serializers.ModelSerializer):
@@ -34,3 +28,16 @@ class MeasurementSerializer(serializers.ModelSerializer):
         if not (800 <= value <= 1500):
             raise serializers.ValidationError("TDS must be between 800 and 1500 ppm")
         return value
+
+
+class HydroponicSystemSerializer(serializers.HyperlinkedModelSerializer):
+    measurements_url = serializers.SerializerMethodField()
+
+    class Meta:
+        model = HydroponicSystem
+        fields = ["id", "url", "name", "description", "created_at", "measurements_url"]
+        read_only_fields = ["id", "created_at"]
+
+    def get_measurements_url(self, obj):
+        request = self.context.get('request')
+        return request.build_absolute_uri(reverse('measurement-list') + f'?system={obj.id}')
