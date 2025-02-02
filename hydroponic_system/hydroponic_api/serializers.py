@@ -19,3 +19,13 @@ class MeasurementSerializer(serializers.ModelSerializer):
         model = Measurement
         fields = ["id", "url", "system", "ph", "temperature", "tds", "time"]
         read_only_fields = ["id", "time"]
+    
+    def validate_ph(self, value):
+        if not (0 <= value <= 14):
+            raise serializers.ValidationError("pH must be between 0 and 14")
+        return value
+
+    def validate_temperature(self, value):
+        if not (0 <= value <= 100):
+            raise serializers.ValidationError("Temperature must be realistic (0-100°C)")
+        return value
