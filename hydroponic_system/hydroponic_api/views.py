@@ -1,18 +1,9 @@
-from django.urls import reverse
-from rest_framework.response import Response
-from rest_framework.decorators import api_view
-from rest_framework import viewsets
-from .models import HydroponicSystem
-from .serializers import HydroponicSystemSerializer
-
-
-@api_view(['GET'])
-def api_root(request, format=None):
-    return Response({'systems': {'list': request.build_absolute_uri(reverse('system-list')),}})
+from rest_framework import viewsets, serializers
+from .models import HydroponicSystem, Measurement
+from .serializers import HydroponicSystemSerializer, MeasurementSerializer
 
 
 class HydroponicSystemViewSet(viewsets.ModelViewSet):
-    queryset = HydroponicSystem.objects.all()
     serializer_class = HydroponicSystemSerializer
 
     def get_queryset(self):
@@ -20,3 +11,16 @@ class HydroponicSystemViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         serializer.save(owner=self.request.user)
+
+
+class MeasurementViewSet(viewsets.ModelViewSet):
+    serializer_class = MeasurementSerializer
+
+    def get_queryset(self):
+        return Measurement.objects.filter(system__owner=self.request.user)
+
+    def perform_create(self, serializer):
+        system = serializer.validated_data['system']
+        if system.owner != self.request.user:
+            raise serializers.ValidationError("You can only add measurements to systems you own.")
+        serializer.save()
