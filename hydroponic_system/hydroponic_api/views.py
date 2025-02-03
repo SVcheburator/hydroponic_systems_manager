@@ -4,6 +4,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 from .models import HydroponicSystem, Measurement
 from .serializers import HydroponicSystemSerializer, MeasurementSerializer
 from .filters import HydroponicSystemFilter, MeasurementFilter
+from .pagination import HydroponicSystemPagination, MeasurementPagination
 
 
 class HydroponicSystemViewSet(viewsets.ModelViewSet):
@@ -11,6 +12,8 @@ class HydroponicSystemViewSet(viewsets.ModelViewSet):
 
     filter_backends = [DjangoFilterBackend]
     filterset_class = HydroponicSystemFilter
+
+    pagination_class = HydroponicSystemPagination
 
     def get_queryset(self):
         return HydroponicSystem.objects.filter(owner=self.request.user)
@@ -27,6 +30,8 @@ class MeasurementViewSet(viewsets.ModelViewSet):
 
     ordering_fields = ['ph', 'temperature', 'tds', 'time']
     ordering = ['-time']
+
+    pagination_class = MeasurementPagination
 
     def get_queryset(self):
         queryset = Measurement.objects.filter(system__owner=self.request.user)
