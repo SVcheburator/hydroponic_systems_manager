@@ -1,4 +1,5 @@
 from rest_framework import viewsets, serializers
+from rest_framework.filters import OrderingFilter
 from django_filters.rest_framework import DjangoFilterBackend
 from .models import HydroponicSystem, Measurement
 from .serializers import HydroponicSystemSerializer, MeasurementSerializer
@@ -21,8 +22,11 @@ class HydroponicSystemViewSet(viewsets.ModelViewSet):
 class MeasurementViewSet(viewsets.ModelViewSet):
     serializer_class = MeasurementSerializer
 
-    filter_backends = [DjangoFilterBackend]
+    filter_backends = [DjangoFilterBackend, OrderingFilter]
     filterset_class = MeasurementFilter
+
+    ordering_fields = ['ph', 'temperature', 'tds', 'time']
+    ordering = ['-time']
 
     def get_queryset(self):
         queryset = Measurement.objects.filter(system__owner=self.request.user)
