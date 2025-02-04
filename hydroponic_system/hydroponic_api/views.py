@@ -64,6 +64,8 @@ def api_root(request):
     if request.user.is_authenticated:
         response["my systems"] = request.build_absolute_uri(reverse("hydroponicsystem-list"))
         response["logout"] = request.build_absolute_uri(reverse("logout"))
+        if request.user.is_staff:
+            response["admin"] = request.build_absolute_uri("admin/")
     else:
         response["login"] = request.build_absolute_uri(reverse("login"))
         response["register"] = request.build_absolute_uri(reverse("register"))
