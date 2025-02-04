@@ -6,13 +6,28 @@ from .models import HydroponicSystem, Measurement
 class MeasurementSerializer(serializers.ModelSerializer):
     system = serializers.HyperlinkedRelatedField(
         view_name="hydroponicsystem-detail",
-        queryset=HydroponicSystem.objects.all()
+        queryset=HydroponicSystem.objects.none()
     )
 
     class Meta:
         model = Measurement
         fields = ["id", "url", "system", "ph", "temperature", "tds", "time"]
         read_only_fields = ["id", "time"]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        request = self.context.get('request')
+        
+        if request and request.user.is_authenticated:
+            system_id = request.query_params.get("system")
+            if system_id:
+                try:
+                    system = HydroponicSystem.objects.get(id=system_id, owner=request.user)
+                    self.fields['system'].queryset = [system]
+                except HydroponicSystem.DoesNotExist:
+                    pass
+            else:
+                self.fields['system'].queryset = HydroponicSystem.objects.filter(owner=request.user)
     
     def validate_ph(self, value):
         if not (0 <= value <= 14):
