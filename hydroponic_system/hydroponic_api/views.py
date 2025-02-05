@@ -17,6 +17,11 @@ from .pagination import HydroponicSystemPagination, MeasurementPagination
 
 # ViewSets
 class HydroponicSystemViewSet(viewsets.ModelViewSet):
+    """
+    ViewSet for managing users hydroponic systems.
+
+    Provides CRUD operations.
+    """
     serializer_class = HydroponicSystemSerializer
 
     filter_backends = [DjangoFilterBackend]
@@ -25,13 +30,24 @@ class HydroponicSystemViewSet(viewsets.ModelViewSet):
     pagination_class = HydroponicSystemPagination
 
     def get_queryset(self):
+        """
+        Returns a list of hydroponic systems owned by the logged in user.
+        """
         return HydroponicSystem.objects.filter(owner=self.request.user)
 
     def perform_create(self, serializer):
+        """
+        Saves a new hydroponic system for user.
+        """
         serializer.save(owner=self.request.user)
 
 
 class MeasurementViewSet(viewsets.ModelViewSet):
+    """
+    ViewSet for managing measurements(pH, temperature, TDS) in hydroponic systems.
+
+    Provides CRUD operations.
+    """
     serializer_class = MeasurementSerializer
 
     filter_backends = [DjangoFilterBackend, OrderingFilter]
@@ -43,6 +59,9 @@ class MeasurementViewSet(viewsets.ModelViewSet):
     pagination_class = MeasurementPagination
 
     def get_queryset(self):
+        """
+        Returns a list of measurements for chosen hydroponic system(if chosen) owned by the logged in user.
+        """
         queryset = Measurement.objects.filter(system__owner=self.request.user)
         system_id = self.request.query_params.get("system")
         if system_id:
@@ -50,6 +69,11 @@ class MeasurementViewSet(viewsets.ModelViewSet):
         return queryset
 
     def perform_create(self, serializer):
+        """
+        Saves a new measurement.
+
+        Ensures that users can only add measurements to systems they own.
+        """
         system = serializer.validated_data['system']
         if system.owner != self.request.user:
             raise serializers.ValidationError("You can only add measurements to systems you own.")
@@ -60,6 +84,11 @@ class MeasurementViewSet(viewsets.ModelViewSet):
 @api_view(['GET'])
 @permission_classes([AllowAny])
 def api_root(request):
+    """
+    API root endpoint that provides links depending on user authentication status.
+    
+    Returns Response: A dictionary containing available endpoints.
+    """
     response = {}
     if request.user.is_authenticated:
         response["my systems"] = request.build_absolute_uri(reverse("hydroponicsystem-list"))
@@ -74,6 +103,11 @@ def api_root(request):
 
 # User actions
 def register_view(request):
+    """
+    Handles user registration.
+
+    Creates and logs in a new user and redirects to the API root.
+    """
     if request.method == 'POST':
         username = request.POST['username']
         email = request.POST['email']
@@ -92,6 +126,11 @@ def register_view(request):
 
 
 def login_view(request):
+    """
+    Handles user login.
+
+    Authenticates and logs in the user and redirects to the API root.
+    """
     if request.method == 'POST':
         username = request.POST['username']
         password = request.POST['password']
@@ -106,5 +145,8 @@ def login_view(request):
 
 
 def logout_view(request):
+    """
+    Logs out the current user and redirects to the API root.
+    """
     logout(request)
     return redirect('api-root')
