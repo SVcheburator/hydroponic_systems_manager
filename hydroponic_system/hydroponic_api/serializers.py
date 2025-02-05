@@ -23,7 +23,7 @@ class MeasurementSerializer(serializers.ModelSerializer):
             if system_id:
                 try:
                     system = HydroponicSystem.objects.get(id=system_id, owner=request.user)
-                    self.fields['system'].queryset = [system]
+                    self.fields['system'].queryset = HydroponicSystem.objects.filter(id=system.id)
                 except HydroponicSystem.DoesNotExist:
                     pass
             else:
