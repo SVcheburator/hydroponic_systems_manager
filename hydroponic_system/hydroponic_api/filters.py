@@ -7,7 +7,10 @@ class HydroponicSystemFilter(FilterSet):
 
     class Meta:
         model = HydroponicSystem
-        fields = {"name": ["icontains"], "description": ["icontains"]}
+        fields = {
+            "name": ["icontains"],
+            "description": ["icontains"]
+            }
 
 
 class MeasurementFilter(FilterSet):
@@ -16,4 +19,8 @@ class MeasurementFilter(FilterSet):
 
     class Meta:
         model = Measurement
-        fields = {"ph": ["gte", "lte"], "temperature": ["gte", "lte"], "tds": ["gte", "lte"]}
+        fields = {
+            "ph": ["gte", "lte"],
+            "temperature": ["gte", "lte"],
+            "tds": ["gte", "lte"]
+            }

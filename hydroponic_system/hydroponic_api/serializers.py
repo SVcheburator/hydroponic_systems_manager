@@ -1,5 +1,5 @@
-from rest_framework import serializers
 from django.urls import reverse
+from rest_framework import serializers
 from .models import HydroponicSystem, Measurement
 
 
@@ -55,4 +55,5 @@ class HydroponicSystemSerializer(serializers.HyperlinkedModelSerializer):
 
     def get_measurements_url(self, obj):
         request = self.context.get('request')
-        return request.build_absolute_uri(reverse('measurement-list') + f'?system={obj.id}')
+        url = reverse('measurement-list') + f'?system={obj.id}'
+        return request.build_absolute_uri(url)

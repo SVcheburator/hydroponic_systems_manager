@@ -6,7 +6,6 @@ router = DefaultRouter()
 router.register('systems', HydroponicSystemViewSet, basename='hydroponicsystem')
 router.register('measurements', MeasurementViewSet, basename='measurement')
 
-
 urlpatterns = [
     path('', api_root, name='api-root'),
     path('', include(router.urls)),

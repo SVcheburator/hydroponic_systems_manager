@@ -1,14 +1,14 @@
+from django.urls import reverse
+from django.shortcuts import render, redirect
+from django.contrib.auth import login, logout, authenticate
+from django.contrib.auth.models import User
+from django.http import JsonResponse
 from rest_framework import viewsets, serializers
 from rest_framework.filters import OrderingFilter
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny
 from django_filters.rest_framework import DjangoFilterBackend
-from django.urls import reverse
-from django.shortcuts import render, redirect
-from django.contrib.auth import login, logout, authenticate
-from django.contrib.auth.models import User
-from django.http import JsonResponse
 from .models import HydroponicSystem, Measurement
 from .serializers import HydroponicSystemSerializer, MeasurementSerializer
 from .filters import HydroponicSystemFilter, MeasurementFilter
@@ -78,7 +78,6 @@ def register_view(request):
         username = request.POST['username']
         email = request.POST['email']
         password = request.POST['password']
-
         if not username or not password:
             return JsonResponse({"detail": "Username and password are required"}, status=400)
 
@@ -87,9 +86,8 @@ def register_view(request):
 
         user = User.objects.create_user(username=username, email=email, password=password)
         login(request, user)
-
         return redirect('api-root')
-
+    
     return render(request, 'hydroponic_api/register.html')
 
 
@@ -97,7 +95,6 @@ def login_view(request):
     if request.method == 'POST':
         username = request.POST['username']
         password = request.POST['password']
-
         user = authenticate(username=username, password=password)
         if user is not None:
             login(request, user)
